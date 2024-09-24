@@ -1,0 +1,132 @@
+1. Find all the topics and tasks taught in the month of October.
+
+db.topics.find({
+  date: { $gte: ISODate("2023-10-01"), $lte: ISODate("2023-10-31") }
+}).toArray();
+
+db.tasks.find({
+  due_date: { $gte: ISODate("2023-10-01"), $lte: ISODate("2023-10-31") }
+}).toArray();
+
+
+    Ans:{
+  "topics": [
+    { "_id": ObjectId("1"), "title": "Introduction to MongoDB", "date": ISODate("2023-10-01") },
+    { "_id": ObjectId("2"), "title": "Data Modeling", "date": ISODate("2023-10-05") },
+    { "_id": ObjectId("3"), "title": "Aggregation Framework", "date": ISODate("2023-10-10") },
+    { "_id": ObjectId("4"), "title": "Indexes in MongoDB", "date": ISODate("2023-10-15") },
+    { "_id": ObjectId("5"), "title": "Data Validation", "date": ISODate("2023-10-20") }
+  ],
+  "tasks": [
+    { "_id": ObjectId("1"), "topic_id": ObjectId("1"), "title": "Task 1", "due_date": ISODate("2023-10-15"), "submitted": false },
+    { "_id": ObjectId("2"), "topic_id": ObjectId("2"), "title": "Task 2", "due_date": ISODate("2023-10-20"), "submitted": true },
+    { "_id": ObjectId("3"), "topic_id": ObjectId("3"), "title": "Task 3", "due_date": ISODate("2023-10-25"), "submitted": false },
+    { "_id": ObjectId("4"), "topic_id": ObjectId("4"), "title": "Task 4", "due_date": ISODate("2023-10-30"), "submitted": false },
+    { "_id": ObjectId("5"), "topic_id": ObjectId("5"), "title": "Task 5", "due_date": ISODate("2023-10-31"), "submitted": true }
+  ]
+}
+
+
+2. Find all the company drives which appeared between 15 Oct 2020 and 31 Oct 2020.
+
+db.company_drives.find({
+  date: { $gte: ISODate("2020-10-15"), $lte: ISODate("2020-10-31") }
+}).toArray();
+
+
+
+  Ans:[
+  { "_id": ObjectId("1"), "company_name": "Tech Corp", "date": ISODate("2020-10-16"), "participants": [ObjectId("1"), ObjectId("2")] },
+  { "_id": ObjectId("2"), "company_name": "Innovate Inc.", "date": ISODate("2020-10-20"), "participants": [ObjectId("2"), ObjectId("3")] },
+  { "_id": ObjectId("3"), "company_name": "Global Solutions", "date": ISODate("2020-10-25"), "participants": [ObjectId("1"), ObjectId("3")] },
+  { "_id": ObjectId("4"), "company_name": "Future Tech", "date": ISODate("2020-10-18"), "participants": [ObjectId("4"), ObjectId("5")] },
+  { "_id": ObjectId("5"), "company_name": "Next Gen", "date": ISODate("2020-10-22"), "participants": [ObjectId("1"), ObjectId("5")] }
+]
+
+
+3. Find all the company drives and students who appeared for placement.
+
+db.company_drives.find().toArray();
+db.users.find({
+  "attendance.status": "present"
+}).toArray();
+
+
+
+   Ans:{
+  "companyDrives": [
+    { "_id": ObjectId("1"), "company_name": "Tech Corp", "date": ISODate("2020-10-16"), "participants": [ObjectId("1"), ObjectId("2")] },
+    { "_id": ObjectId("2"), "company_name": "Innovate Inc.", "date": ISODate("2020-10-20"), "participants": [ObjectId("2"), ObjectId("3")] },
+    { "_id": ObjectId("3"), "company_name": "Global Solutions", "date": ISODate("2020-10-25"), "participants": [ObjectId("1"), ObjectId("3")] },
+    { "_id": ObjectId("4"), "company_name": "Future Tech", "date": ISODate("2020-10-18"), "participants": [ObjectId("4"), ObjectId("5")] },
+    { "_id": ObjectId("5"), "company_name": "Next Gen", "date": ISODate("2020-10-22"), "participants": [ObjectId("1"), ObjectId("5")] }
+  ],
+  "students": [
+    { "_id": ObjectId("1"), "name": "Alice", "email": "alice@example.com", "codekata_solved": 10 },
+    { "_id": ObjectId("3"), "name": "Charlie", "email": "charlie@example.com", "codekata_solved": 8 },
+    { "_id": ObjectId("5"), "name": "Eve", "email": "eve@example.com", "codekata_solved": 15 }
+  ]
+}
+
+
+4. Find the number of problems solved by the user in CodeKata.
+
+db.codekata.aggregate([
+  { $match: { user_id: ObjectId("user_id_here") }, }, // Replace with actual user ID
+  { $group: { _id: "$user_id", total_solved: { $sum: "$problems_solved" } } }
+]).toArray();
+
+
+
+   Ans:[
+  { "user_id": ObjectId("1"), "name": "Alice", "total_solved": 10 },
+  { "user_id": ObjectId("2"), "name": "Bob", "total_solved": 5 },
+  { "user_id": ObjectId("3"), "name": "Charlie", "total_solved": 8 },
+  { "user_id": ObjectId("4"), "name": "David", "total_solved": 12 },
+  { "user_id": ObjectId("5"), "name": "Eve", "total_solved": 15 }
+]
+
+
+5.Find all the mentors with who has the mentee's count more than 15.
+
+db.mentors.find({
+  mentees_count: { $gt: 15 }
+}).toArray();
+
+
+
+   Ans:[
+  { "_id": ObjectId("1"), "name": "Mentor A", "mentees_count": 16 },
+  { "_id": ObjectId("2"), "name": "Mentor B", "mentees_count": 20 },
+  { "_id": ObjectId("4"), "name": "Mentor D", "mentees_count": 18 },
+  { "_id": ObjectId("5"), "name": "Mentor E", "mentees_count": 22 }
+]
+
+
+6. Find the number of users who are absent and tasks not submitted between 15 Oct 2020 and 31 Oct 2020.
+
+const absentUsers = db.attendance.find({
+  status: "absent",
+  date: { $gte: ISODate("2020-10-15"), $lte: ISODate("2020-10-31") }
+}).distinct("user_id");
+
+const nonSubmittedTasks = db.tasks.find({
+  submitted: false,
+  due_date: { $gte: ISODate("2020-10-15"), $lte: ISODate("2020-10-31") }
+}).toArray();
+
+const nonSubmittedUserIds = nonSubmittedTasks.map(task => task.user_id);
+
+const absentAndNotSubmittedCount = absentUsers.filter(userId =>
+  nonSubmittedUserIds.includes(userId)
+).length;
+
+return absentAndNotSubmittedCount;
+
+
+
+    Ans:{
+  "count": 2  //( count of users who are absent and have not submitted tasks)
+}
+
+
